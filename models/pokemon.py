@@ -18,6 +18,11 @@ class Pokemon:
         multiplier = 1.25 if self.isWeak(attack.type, self.type) else 1
         multiplier = 0.30 if self.isStrong(attack.type, self.type) else multiplier
         self.life -= attack.damage * multiplier
+        response = [f"{self.name} ha perdido {attack.damage * multiplier}PS"]
+        if multiplier > 1:
+            response.append("Es muy eficaz")
+        if multiplier < 1:
+            response.append("No es eficaz")
 
     def isWeak(self, origin, objective):
         return origin in POKEMON_TYPES.WEAKNESS[objective - 1]

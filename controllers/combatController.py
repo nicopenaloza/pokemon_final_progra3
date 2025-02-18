@@ -1,14 +1,16 @@
 from random import choice
 
 from controllers.dialogController import DialogController
+from models.message import Message
 from models.player import Player
+
 
 class Movement:
     ITEM_USED = 0
     POKEMON_CHANGED = 1
     ATTACK = 2
 
-    def __init__(self, type, callback, priority=100, origin = None, objective=None, name = ""):
+    def __init__(self, type, callback, priority=100, origin=None, objective=None, name=""):
         self.type = type
         self.callback = callback
         self.priority = priority
@@ -25,19 +27,21 @@ class Movement:
 
 class CombatController:
 
-    def __init__(self, enemy=Player(), player=Player(), dialogController=DialogController(), menu = None):
+    def __init__(self, enemy=Player(), player=Player(), dialogController=DialogController(), menu=None):
         self.enemy = enemy
         self.player = player
         self.dialogController = dialogController
+        self.menu = menu
         self.turn_movements = []
 
     def validateState(self):
         if self.player.selected_pokemon and self.player.selected_pokemon.isDead() and self.player.hasMorePokemons():
-            self.dialogController.addMessage(self.player.selected_pokemon.name + " se ha debilitado...")
+            self.dialogController.addMessage(Message(self.player.selected_pokemon.name + " se ha debilitado..."))
             self.player.nextPokemon()
+            self.menu.showPokemonMenu()
 
         if self.enemy.selected_pokemon and self.enemy.selected_pokemon.isDead() and self.enemy.hasMorePokemons():
-            self.dialogController.addMessage(self.enemy.selected_pokemon.name + " se ha debilitado...")
+            self.dialogController.addMessage(Message(self.enemy.selected_pokemon.name + " se ha debilitado..."))
             self.enemy.nextPokemon()
 
     def runMovements(self):
@@ -48,14 +52,21 @@ class CombatController:
 
             for move in self.turn_movements:
                 if self.__canMove(move):
+                    text = ""
                     if move.type == Movement.ATTACK:
-                        self.dialogController.addMessage(move.origin.name + " ha usado " + move.name)
+                        text = move.origin.name + " ha usado " + move.name
+                        if move.origin == self.enemy.selected_pokemon:
+                            move.objective = self.player.selected_pokemon
+                        if move.origin == self.player.selected_pokemon:
+                            move.objective = self.enemy.selected_pokemon
+
                     if move.type == Movement.POKEMON_CHANGED:
                         pokemon = self.enemy.selected_pokemon if move.origin == self.enemy else self.player.selected_pokemon
-                        newPokemon = self.enemy.pokemons[move.objective] if move.origin == self.enemy else self.player.pokemons[move.objective]
-                        self.dialogController.addMessage(pokemon.name + " ha sido cambiado por " + newPokemon.name)
+                        newPokemon = self.enemy.pokemons[move.objective] if move.origin == self.enemy else \
+                            self.player.pokemons[move.objective]
+                        text = pokemon.name + " ha sido cambiado por " + newPokemon.name
 
-                    move.run()
+                    self.dialogController.addMessage(Message(text, move.run))
 
             self.turn_movements = []
 
@@ -81,4 +92,5 @@ class CombatController:
         movement = choice(self.enemy.selected_pokemon.attacks)
         print(movement)
         self.turn_movements.append(
-            Movement(Movement.ATTACK, movement.attack, movement.priority, self.enemy.selected_pokemon, self.player.selected_pokemon, movement.name))
+            Movement(Movement.ATTACK, movement.attack, movement.priority, self.enemy.selected_pokemon,
+                     self.player.selected_pokemon, movement.name))

@@ -35,7 +35,7 @@ class Menu:
                 Option("Mochila", self.__showBackpackMenu),
             ],
             [
-                Option("Pokemon", self.__showPokemonMenu),
+                Option("Pokemon", self.showPokemonMenu),
                 Option("Salir", self.event_controller.close),
             ],
         ]
@@ -102,7 +102,7 @@ class Menu:
 
                 y_offset += 50
         else:
-            DialogMenu.drawText(screen, self.dialog_controller.first(), int(self.tick * 2))
+            DialogMenu.drawText(screen, self.dialog_controller.first().text, int(self.tick * 2))
 
         if self.menu_type == MENU_TYPE.ATTACKS:
             draw.rect(screen, COLORS.BLACK,
@@ -116,8 +116,7 @@ class Menu:
             screen.blit(texto, (SCREEN_SETTINGS.WIDTH - 300 + 25, SCREEN_SETTINGS.HEIGHT - 150 + 25))
             screen.blit(texto2, (SCREEN_SETTINGS.WIDTH - 300 + 25, SCREEN_SETTINGS.HEIGHT - 150 + 50))
 
-        self.tick += SCREEN_SETTINGS.FPS/1000
-        print(self.tick)
+        self.tick += SCREEN_SETTINGS.FPS / 1000
 
     def __get_menu(self):
         if self.dialog_controller.hasMessages() and self.menu_type != MENU_TYPE.DIALOG:
@@ -156,7 +155,7 @@ class Menu:
 
             self.__defaultMenu()
 
-    def __showPokemonMenu(self):
+    def showPokemonMenu(self):
         self.current_options = []
         self.cursor_position = (0, 0)
         self.menu_type = MENU_TYPE.POKEMONS
@@ -165,7 +164,8 @@ class Menu:
 
     def __selectAttack(self):
         attack = self.player.selected_pokemon.attacks[self.cursor_position[1] + self.cursor_position[0]]
-        self.event_controller.emitEvent(EVENTS.MOVEMENT, Movement(Movement.ATTACK, attack.attack, attack.priority, self.player.selected_pokemon, None, attack.name))
+        self.event_controller.emitEvent(EVENTS.MOVEMENT, Movement(Movement.ATTACK, attack.attack, attack.priority,
+                                                                  self.player.selected_pokemon, None, attack.name))
         self.__defaultMenu()
 
     def __showAttacksMenu(self):

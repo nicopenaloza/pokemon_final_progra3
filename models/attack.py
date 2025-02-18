@@ -13,9 +13,11 @@ class Attack:
     def attack(self, pokemon):
         if not pokemon:
             return
-
+        response = []
         if self.pp > 0:
             if random.randrange(100) <= self.precision:
-                pokemon.takeDamage(self)
+                response = pokemon.takeDamage(self)
 
             self.pp -= 1
+        print(response, "x")
+        return response
