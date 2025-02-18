@@ -1,5 +1,4 @@
-import pygame
-from pygame import QUIT, KEYDOWN, KEYUP, K_LEFT, K_UP, K_DOWN, K_RIGHT, K_z, K_x, K_RETURN, K_BACKSPACE
+from pygame import QUIT, KEYDOWN, KEYUP, K_LEFT, K_UP, K_DOWN, K_RIGHT, K_RETURN, K_BACKSPACE
 
 
 class COLORS:
@@ -45,7 +44,7 @@ class POKEMON_TYPES:
     NORMAL = 6
 
     WEAKNESS = [[WATER, ROCK], [FIRE, ROCK], [PLANT, ELECTRIC], [ROCK], [WATER], []]
-    STRENGTHS = [[PLANT], [WATER], [FIRE, ROCK], [ELECTRIC], [WATER], []]
+    STRENGTHS = [[PLANT, FIRE], [WATER, PLANT], [WATER, FIRE, ROCK], [ELECTRIC], [ROCK, WATER], [NORMAL]]
     TRANSLATIONS = ["", "Fuego", "Planta", "Agua", "Electrico", "Roca", "Normal"]
 
 class MOVEMENT_ORIGIN:

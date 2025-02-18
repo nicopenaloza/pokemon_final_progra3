@@ -1,5 +1,6 @@
 from pygame import event, QUIT
-from utils.constants import EVENTS, KEYDOWN
+
+from utils.constants import EVENTS
 
 
 class EventController:

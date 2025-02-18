@@ -1,13 +1,13 @@
 from pygame import init, mixer, display, time, draw, Rect
 
 from controllers.combatController import CombatController
-from models.attack import Attack
-from models.player import Player
+from controllers.dialogController import DialogController
 from controllers.eventController import EventController
-from models.pokemon import Pokemon
 from models.menu import Menu
-from utils.constants import COLORS, SCREEN_SETTINGS, EVENTS, POKEMON_TYPES
+from models.player import Player
 from utils.components import drawLife
+from utils.constants import COLORS, SCREEN_SETTINGS, EVENTS
+from utils.pokemons import Pikachu, Charmander, Squirtle
 
 
 class Game:
@@ -16,6 +16,7 @@ class Game:
         self.__init_window()
         self.state = 0
         self.__event_controller = EventController()
+        self.__dialog_controller = DialogController()
         self.__init_player()
         self.__init_enemy()
 
@@ -25,44 +26,14 @@ class Game:
 
     def __init_player(self):
         self.player = Player()
-        self.player.addPokemons([
-            Pokemon("Squirtle", 1, POKEMON_TYPES.WATER, "squirtle", [
-                Attack(40, POKEMON_TYPES.WATER, "Pistola de agua", 25, 80, 2),
-                Attack(10, POKEMON_TYPES.NORMAL, "Placaje", 30, 100, 2)
-            ], 100),
-
-            Pokemon("Charmander", 1, POKEMON_TYPES.FIRE, "char", [
-                Attack(40, POKEMON_TYPES.FIRE, "Ascuas", 25, 80, 2),
-                Attack(10, POKEMON_TYPES.NORMAL, "Placaje", 30, 100, 2)
-            ], 100),
-
-            Pokemon("ChatGPT", 1, POKEMON_TYPES.ELECTRIC, "chat chat...", [
-                Attack(10, POKEMON_TYPES.ELECTRIC, "Respuesta", 25, 80, 2),
-                Attack(80, POKEMON_TYPES.ELECTRIC, "Cambiar modelo", 30, 100, 2)
-            ], 50),
-
-            Pokemon("Deepseek", 1, POKEMON_TYPES.ELECTRIC, "wan chin chin...", [
-                Attack(10, POKEMON_TYPES.ELECTRIC, "Respuesta", 25, 80, 2),
-                Attack(100, POKEMON_TYPES.ELECTRIC, "Tirar Mercado", 5, 100, 2)
-            ], 50),
-        ])
+        self.player.addPokemons([Pikachu, Charmander, Squirtle])
         self.player.selected_pokemon = self.player.pokemons[0]
         self.__menu = Menu(self.player, self.__event_controller)
         self.__menu.init()
 
     def __init_enemy(self):
         self.enemy = Player()
-        self.enemy.addPokemons([
-            Pokemon("Charmander", 1, POKEMON_TYPES.FIRE, "char", [
-                Attack(40, POKEMON_TYPES.FIRE, "Ascuas", 25, 80, 2),
-                Attack(10, POKEMON_TYPES.NORMAL, "Placaje", 30, 100, 2)
-            ], 100),
-
-            Pokemon("Deepseek", 1, POKEMON_TYPES.ELECTRIC, "wan chin chin...", [
-                Attack(10, POKEMON_TYPES.ELECTRIC, "Respuesta", 25, 80, 2),
-                Attack(100, POKEMON_TYPES.ELECTRIC, "Tirar Mercado", 5, 100, 2)
-            ], 50),
-        ])
+        self.enemy.addPokemons([Pikachu, Charmander, Squirtle])
         self.enemy.selected_pokemon = self.enemy.pokemons[0]
         self.__combat_controller = CombatController(self.enemy, self.player)
 

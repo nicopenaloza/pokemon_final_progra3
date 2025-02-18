@@ -1,5 +1,7 @@
+from copy import copy
+
 from models.drawableEntity import DrawableEntity
-from models.pokemon import Pokemon
+from utils.pokemons import Pikachu
 
 
 class Player(DrawableEntity):
@@ -9,17 +11,17 @@ class Player(DrawableEntity):
 
         self.items = []
         self.pokemons = []
-        self.selected_pokemon = None
+        self.selected_pokemon = copy(Pikachu)
 
     def select_pokemon(self, i):
         self.selected_pokemon = self.pokemons[i]
 
     def addPokemon(self, pokemon):
-        self.pokemons.append(pokemon)
+        self.pokemons.append(copy(pokemon))
 
     def addPokemons(self, pokemons):
         for p in pokemons:
-            self.pokemons.append(p)
+            self.pokemons.append(copy(p))
 
     def hasMorePokemons(self):
         response = False

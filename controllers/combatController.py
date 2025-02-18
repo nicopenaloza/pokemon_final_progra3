@@ -29,15 +29,18 @@ class CombatController:
         self.turn_movements = []
 
     def validateState(self):
-        if self.player.selected_pokemon.isDead() and self.player.hasMorePokemons():
+        if self.player.selected_pokemon and self.player.selected_pokemon.isDead() and self.player.hasMorePokemons():
             self.player.nextPokemon()
 
-        if self.enemy.selected_pokemon.isDead() and self.enemy.hasMorePokemons():
+        if self.enemy.selected_pokemon and self.enemy.selected_pokemon.isDead() and self.enemy.hasMorePokemons():
             self.enemy.nextPokemon()
 
     def runMovements(self):
         if len(self.turn_movements) > 1:
+            if (self.enemy.selected_pokemon.speed > self.player.selected_pokemon.speed):
+                self.turn_movements.reverse()
             self.turn_movements.sort(key=lambda x: x.priority, reverse=True)
+
             for move in self.turn_movements:
                 if self.__canMove(move):
                     move.run()
