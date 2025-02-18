@@ -43,7 +43,7 @@ class Menu:
         self.current_options = self.default_options
         self.menu_type = MENU_TYPE.DEFAULT
         self.tick = 0
-        self.font = font.Font(None, 30)
+        self.font = font.Font("assets/pokemon_fire_red.ttf", 30)
 
 
     def init(self):
@@ -93,9 +93,9 @@ class Menu:
 
                     if (col_index, row_index) == self.cursor_position:
                         triangle_points = [
-                            (menu.origin[0] + x_offset + 5, menu.origin[1] + y_offset + 8),  # Punta izquierda
-                            (menu.origin[0] + x_offset - 5, menu.origin[1] + y_offset + 4),  # Arriba
-                            (menu.origin[0] + x_offset - 5, menu.origin[1] + y_offset + 13)  # Abajo
+                            (menu.origin[0] + x_offset + 5, menu.origin[1] + y_offset + 15),  # Punta izquierda
+                            (menu.origin[0] + x_offset - 5, menu.origin[1] + y_offset + 10),  # Arriba
+                            (menu.origin[0] + x_offset - 5, menu.origin[1] + y_offset + 20)  # Abajo
                         ]
                         draw.polygon(screen, COLORS.BLACK, triangle_points)
                         extra_offset = 10

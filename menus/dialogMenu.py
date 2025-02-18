@@ -14,6 +14,6 @@ class DialogMenu(DrawableMenu):
                   (DialogMenu.origin[0], DialogMenu.origin[1], SCREEN_SETTINGS.WIDTH, 150), 5)  # Borde de 5 píxeles
 
     def drawText(screen, message, tick):
-        title = font.Font(None, 30)
+        title = font.Font("assets/pokemon_fire_red.ttf", 30)
         message = title.render(message[:tick], True, COLORS.BLACK)
         screen.blit(message, (DialogMenu.origin[0] + 25, DialogMenu.origin[1] + 60))

@@ -4,8 +4,8 @@ from utils.constants import SCREEN_SETTINGS, COLORS
 
 
 def drawLife(screen, player, enemy):
-    title = font.Font(None, 30)
-    life = font.Font(None, 20)
+    title = font.Font("assets/pokemon_fire_red.ttf", 30)
+    life = font.Font("assets/pokemon_fire_red.ttf", 20)
 
     player_hp_percent = player.life / player.max_life
     enemy_hp_percent = enemy.life / enemy.max_life
