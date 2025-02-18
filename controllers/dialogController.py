@@ -12,7 +12,7 @@ class DialogController:
         response = self.first().callback()
         self.messages.pop(0)
 
-        print(response)
+        print(response, "------")
         if response:
             for message in response:
                 self.messages.insert(0, Message(message))

@@ -11,13 +11,10 @@ class Attack:
         self.priority = priority
 
     def attack(self, pokemon):
-        if not pokemon:
-            return
         response = []
-        if self.pp > 0:
-            if random.randrange(100) <= self.precision:
-                response = pokemon.takeDamage(self)
-
-            self.pp -= 1
-        print(response, "x")
+        if pokemon:
+            if self.pp > 0:
+                if random.randrange(100) <= self.precision:
+                    response = pokemon.takeDamage(self)
+                self.pp -= 1
         return response

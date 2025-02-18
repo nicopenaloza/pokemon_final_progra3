@@ -43,6 +43,8 @@ class Menu:
         self.current_options = self.default_options
         self.menu_type = MENU_TYPE.DEFAULT
         self.tick = 0
+        self.font = font.Font(None, 30)
+
 
     def init(self):
         self.event_controller.subscribe((EVENTS.MENU_CONTROLLER, self.onInput))
@@ -57,9 +59,12 @@ class Menu:
             self.__move_cursor((0, -1))
         if (event.key == EVENTS.KEY_DOWN and self.cursor_position[1] < len(self.current_options)):
             self.__move_cursor((0, 1))
+            if self.cursor_position[0] >= len(self.current_options[1]):
+                self.__move_cursor((-1, 0))
         if (event.key == EVENTS.KEY_LEFT and self.cursor_position[0] > 0):
             self.__move_cursor((-1, 0))
-        if (event.key == EVENTS.KEY_RIGHT and self.cursor_position[0] < len(self.current_options[0])):
+        if (event.key == EVENTS.KEY_RIGHT and self.cursor_position[0] + 1 < len(
+                self.current_options[self.cursor_position[1]])):
             self.__move_cursor((1, 0))
 
         if (event.key == EVENTS.ENTER):
@@ -73,7 +78,6 @@ class Menu:
 
         menu.draw(screen)
 
-        fuente = font.Font(None, 30)
         y_offset = menu.offset[1]
 
         is_default = self.menu_type == MENU_TYPE.DEFAULT
@@ -84,7 +88,7 @@ class Menu:
 
                 for col_index, option in enumerate(row):
                     color_texto = COLORS.BLACK
-                    texto = fuente.render(option.name, True, color_texto)
+                    texto = self.font.render(option.name, True, color_texto)
                     extra_offset = 0
 
                     if (col_index, row_index) == self.cursor_position:
@@ -111,8 +115,8 @@ class Menu:
             attack = self.player.selected_pokemon.attacks[attack_index]
             pps = "PP: " + str(attack.pp)
             type = "TIPO: " + POKEMON_TYPES.TRANSLATIONS[attack.type]
-            texto = fuente.render(pps, True, COLORS.BLACK)
-            texto2 = fuente.render(type, True, COLORS.BLACK)
+            texto = self.font.render(pps, True, COLORS.BLACK)
+            texto2 = self.font.render(type, True, COLORS.BLACK)
             screen.blit(texto, (SCREEN_SETTINGS.WIDTH - 300 + 25, SCREEN_SETTINGS.HEIGHT - 150 + 25))
             screen.blit(texto2, (SCREEN_SETTINGS.WIDTH - 300 + 25, SCREEN_SETTINGS.HEIGHT - 150 + 50))
 
@@ -163,20 +167,37 @@ class Menu:
             self.current_options.append([Option(self.player.pokemons[i].name, self.__selectPokemon)])
 
     def __selectAttack(self):
-        attack = self.player.selected_pokemon.attacks[self.cursor_position[1] + self.cursor_position[0]]
-        self.event_controller.emitEvent(EVENTS.MOVEMENT, Movement(Movement.ATTACK, attack.attack, attack.priority,
-                                                                  self.player.selected_pokemon, None, attack.name))
+        columna, fila = self.cursor_position
+        ataque = self.current_options[fila][columna].name
+        selected_attack = next((atk for atk in self.player.selected_pokemon.attacks if atk.name == ataque), None)
+        if selected_attack:
+            self.event_controller.emitEvent(
+                EVENTS.MOVEMENT,
+                Movement(
+                    Movement.ATTACK,
+                    selected_attack.attack,
+                    selected_attack.priority,
+                    self.player.selected_pokemon,
+                    None,
+                    selected_attack.name
+                )
+            )
+
         self.__defaultMenu()
 
     def __showAttacksMenu(self):
         self.current_options = []
         self.cursor_position = (0, 0)
         self.menu_type = MENU_TYPE.ATTACKS
-        current_row = []
-        for i, attack in enumerate(self.player.selected_pokemon.attacks):
-            current_row.append(Option(attack.name, self.__selectAttack))
-            if len(current_row) > 1:
-                self.current_options.append(current_row)
+
+        attacks = self.player.selected_pokemon.attacks
+        filas = []
+
+        for i in range(0, len(attacks), 2):
+            fila = [Option(attacks[j].name, self.__selectAttack) for j in range(i, min(i + 2, len(attacks)))]
+            filas.append(fila)
+        print(filas)
+        self.current_options = filas
 
     def __nextMessage(self):
         self.dialog_controller.pop()

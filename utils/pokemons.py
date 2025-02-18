@@ -1,5 +1,5 @@
 from models.pokemon import Pokemon
-from utils.attacks import Ascuas, Placaje, PistolaAgua, Impactrueno
+from utils.attacks import Ascuas, Placaje, PistolaAgua, Impactrueno, AtaqueRapido
 from utils.constants import POKEMON_TYPES
 
 Squirtle = Pokemon("Squirtle", 1, POKEMON_TYPES.WATER, "squirtle", [
@@ -11,5 +11,5 @@ Charmander = Pokemon("Charmander", 1, POKEMON_TYPES.FIRE, "char", [
 ], 100, 30)
 
 Pikachu = Pokemon("Pikachu", 1, POKEMON_TYPES.ELECTRIC, "Pika", [
-    Placaje, Impactrueno
-], 100, 40)
+    Placaje, Impactrueno, AtaqueRapido
+], 100, 10)

@@ -23,6 +23,7 @@ class Pokemon:
             response.append("Es muy eficaz")
         if multiplier < 1:
             response.append("No es eficaz")
+        return response
 
     def isWeak(self, origin, objective):
         return origin in POKEMON_TYPES.WEAKNESS[objective - 1]
