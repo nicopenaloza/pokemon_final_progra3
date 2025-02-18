@@ -20,6 +20,12 @@ class Game:
         self.__init_player()
         self.__init_enemy()
 
+        self.__menu = Menu(self.player, self.__event_controller, self.__dialog_controller)
+        self.__menu.init()
+
+        self.__combat_controller = CombatController(self.enemy, self.player, self.__dialog_controller, self.__menu)
+
+
     def __init_services(self):
         init()
         mixer.init()
@@ -28,14 +34,11 @@ class Game:
         self.player = Player()
         self.player.addPokemons([Pikachu, Charmander, Squirtle])
         self.player.selected_pokemon = self.player.pokemons[0]
-        self.__menu = Menu(self.player, self.__event_controller)
-        self.__menu.init()
 
     def __init_enemy(self):
         self.enemy = Player()
         self.enemy.addPokemons([Pikachu, Charmander, Squirtle])
         self.enemy.selected_pokemon = self.enemy.pokemons[0]
-        self.__combat_controller = CombatController(self.enemy, self.player)
 
     def __init_window(self):
         self.screen = display.set_mode((SCREEN_SETTINGS.WIDTH, SCREEN_SETTINGS.HEIGHT))

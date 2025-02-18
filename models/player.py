@@ -13,7 +13,7 @@ class Player(DrawableEntity):
         self.pokemons = []
         self.selected_pokemon = copy(Pikachu)
 
-    def select_pokemon(self, i):
+    def selectPokemon(self, i):
         self.selected_pokemon = self.pokemons[i]
 
     def addPokemon(self, pokemon):

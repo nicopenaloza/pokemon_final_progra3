@@ -1,16 +1,14 @@
-from tkinter.constants import CURRENT
-from unittest.mock import DEFAULT
-
-from pygame.examples.moveit import WIDTH
+from pygame import draw, font
 
 from controllers.combatController import Movement
+from controllers.dialogController import DialogController
 from controllers.eventController import EventController
 from menus.attacksMenu import AttacksMenu
 from menus.defaultMenu import DefaultMenu
+from menus.dialogMenu import DialogMenu
 from menus.pokemonMenu import PokemonMenu
 from models.player import Player
 from utils.constants import EVENTS, COLORS, SCREEN_SETTINGS, MENU_TYPE, POKEMON_TYPES
-from pygame import draw, font
 
 
 class Option:
@@ -26,8 +24,9 @@ class Option:
 
 
 class Menu:
-    def __init__(self, player=Player(), event_controller=EventController()):
+    def __init__(self, player=Player(), event_controller=EventController(), dialog_controller=DialogController()):
         self.player = player
+        self.dialog_controller = dialog_controller
         self.event_controller = event_controller
         self.cursor_position = (0, 0)
         self.default_options = [
@@ -43,6 +42,7 @@ class Menu:
 
         self.current_options = self.default_options
         self.menu_type = MENU_TYPE.DEFAULT
+        self.tick = 0
 
     def init(self):
         self.event_controller.subscribe((EVENTS.MENU_CONTROLLER, self.onInput))
@@ -78,28 +78,31 @@ class Menu:
 
         is_default = self.menu_type == MENU_TYPE.DEFAULT
 
-        for row_index, row in enumerate(self.current_options):
-            x_offset = menu.offset[0]
+        if (self.menu_type != MENU_TYPE.DIALOG):
+            for row_index, row in enumerate(self.current_options):
+                x_offset = menu.offset[0]
 
-            for col_index, option in enumerate(row):
-                color_texto = COLORS.BLACK
-                texto = fuente.render(option.name, True, color_texto)
-                extra_offset = 0
+                for col_index, option in enumerate(row):
+                    color_texto = COLORS.BLACK
+                    texto = fuente.render(option.name, True, color_texto)
+                    extra_offset = 0
 
-                if (col_index, row_index) == self.cursor_position:
-                    triangle_points = [
-                        (menu.origin[0] + x_offset + 5, menu.origin[1] + y_offset + 8),  # Punta izquierda
-                        (menu.origin[0] + x_offset - 5, menu.origin[1] + y_offset + 4),  # Arriba
-                        (menu.origin[0] + x_offset - 5, menu.origin[1] + y_offset + 13)  # Abajo
-                    ]
-                    draw.polygon(screen, COLORS.BLACK, triangle_points)
-                    extra_offset = 10
+                    if (col_index, row_index) == self.cursor_position:
+                        triangle_points = [
+                            (menu.origin[0] + x_offset + 5, menu.origin[1] + y_offset + 8),  # Punta izquierda
+                            (menu.origin[0] + x_offset - 5, menu.origin[1] + y_offset + 4),  # Arriba
+                            (menu.origin[0] + x_offset - 5, menu.origin[1] + y_offset + 13)  # Abajo
+                        ]
+                        draw.polygon(screen, COLORS.BLACK, triangle_points)
+                        extra_offset = 10
 
-                screen.blit(texto, (menu.origin[0] + x_offset + extra_offset, menu.origin[1] + y_offset))
+                    screen.blit(texto, (menu.origin[0] + x_offset + extra_offset, menu.origin[1] + y_offset))
 
-                x_offset += 150 if is_default else 250
+                    x_offset += 150 if is_default else 250
 
-            y_offset += 50
+                y_offset += 50
+        else:
+            DialogMenu.drawText(screen, self.dialog_controller.first(), int(self.tick * 2))
 
         if self.menu_type == MENU_TYPE.ATTACKS:
             draw.rect(screen, COLORS.BLACK,
@@ -113,7 +116,15 @@ class Menu:
             screen.blit(texto, (SCREEN_SETTINGS.WIDTH - 300 + 25, SCREEN_SETTINGS.HEIGHT - 150 + 25))
             screen.blit(texto2, (SCREEN_SETTINGS.WIDTH - 300 + 25, SCREEN_SETTINGS.HEIGHT - 150 + 50))
 
+        self.tick += SCREEN_SETTINGS.FPS/1000
+        print(self.tick)
+
     def __get_menu(self):
+        if self.dialog_controller.hasMessages() and self.menu_type != MENU_TYPE.DIALOG:
+            self.__showMessage()
+
+        if self.menu_type == MENU_TYPE.DIALOG:
+            return DialogMenu
         if self.menu_type == MENU_TYPE.ATTACKS:
             return AttacksMenu
         if self.menu_type == MENU_TYPE.POKEMONS:
@@ -132,14 +143,14 @@ class Menu:
 
     def __selectPokemon(self):
         pokemon = self.cursor_position[1] + self.cursor_position[0]
-        print("Select Pokemon", pokemon)
         if pokemon >= 0:
             self.event_controller.emitEvent(
                 EVENTS.MOVEMENT,
                 Movement(
-                    Movement.POKEMON_CHANGED,
-                    self.player.select_pokemon, 1000,
-                    pokemon
+                    type=Movement.POKEMON_CHANGED,
+                    callback=self.player.selectPokemon,
+                    priority=1000,
+                    objective=pokemon
                 )
             )
 
@@ -154,7 +165,7 @@ class Menu:
 
     def __selectAttack(self):
         attack = self.player.selected_pokemon.attacks[self.cursor_position[1] + self.cursor_position[0]]
-        self.event_controller.emitEvent(EVENTS.MOVEMENT, Movement(Movement.ATTACK, attack.attack, attack.priority))
+        self.event_controller.emitEvent(EVENTS.MOVEMENT, Movement(Movement.ATTACK, attack.attack, attack.priority, self.player.selected_pokemon, None, attack.name))
         self.__defaultMenu()
 
     def __showAttacksMenu(self):
@@ -166,3 +177,12 @@ class Menu:
             current_row.append(Option(attack.name, self.__selectAttack))
             if len(current_row) > 1:
                 self.current_options.append(current_row)
+
+    def __nextMessage(self):
+        self.dialog_controller.pop()
+        self.__defaultMenu()
+
+    def __showMessage(self):
+        self.tick = 0
+        self.menu_type = MENU_TYPE.DIALOG
+        self.current_options = [[Option("Continuar", self.__nextMessage)]]

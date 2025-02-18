@@ -1,4 +1,4 @@
-from pygame import QUIT, KEYDOWN, KEYUP, K_LEFT, K_UP, K_DOWN, K_RIGHT, K_RETURN, K_BACKSPACE
+from pygame import QUIT, KEYDOWN, KEYUP, K_LEFT, K_UP, K_DOWN, K_RIGHT, K_RETURN, K_BACKSPACE, font
 
 
 class COLORS:
@@ -21,6 +21,7 @@ class MENU_TYPE:
     POKEMONS = 1
     BACKPACK = 2
     DEFAULT = 3
+    DIALOG = 4
 
 class EVENTS:
     QUIT = QUIT
