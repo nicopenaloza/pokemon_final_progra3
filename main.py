@@ -32,7 +32,7 @@ class Game:
 
     def __init_player(self):
         self.player = Player()
-        self.player.addPokemons([Pikachu, Charmander, Squirtle])
+        self.player.addPokemons([Charmander, Pikachu, Squirtle])
         self.player.selected_pokemon = self.player.pokemons[0]
 
     def __init_enemy(self):
