@@ -4,6 +4,7 @@ from controllers.combatController import Movement
 from controllers.dialogController import DialogController
 from controllers.eventController import EventController
 from menus.attacksMenu import AttacksMenu
+from menus.bagMenu import BagMenu
 from menus.defaultMenu import DefaultMenu
 from menus.dialogMenu import DialogMenu
 from menus.pokemonMenu import PokemonMenu
@@ -57,7 +58,7 @@ class Menu:
     def onInput(self, event):
         if (event.key == EVENTS.KEY_UP and self.cursor_position[1] > 0):
             self.__move_cursor((0, -1))
-        if (event.key == EVENTS.KEY_DOWN and self.cursor_position[1] < len(self.current_options)):
+        if (event.key == EVENTS.KEY_DOWN and self.cursor_position[1] + 1 < len(self.current_options)):
             self.__move_cursor((0, 1))
             if self.cursor_position[0] >= len(self.current_options[1]):
                 self.__move_cursor((-1, 0))
@@ -132,6 +133,8 @@ class Menu:
             return AttacksMenu
         if self.menu_type == MENU_TYPE.POKEMONS:
             return PokemonMenu
+        if self.menu_type == MENU_TYPE.BACKPACK:
+            return BagMenu
         return DefaultMenu
 
     def __defaultMenu(self):
@@ -141,8 +144,25 @@ class Menu:
 
     def __showBackpackMenu(self):
         self.menu_type = MENU_TYPE.BACKPACK
-        for item in self.player.items:
-            print(item.name)
+        self.current_options = []
+        self.cursor_position = (0, 0)
+        for i in range(len(self.player.items)):
+            self.current_options.append([Option(self.player.items[i].name, self.__selectItem)])
+
+    def __selectItem(self):
+        item = self.cursor_position[1] + self.cursor_position[0]
+        if item >= 0:
+            self.event_controller.emitEvent(
+                EVENTS.MOVEMENT,
+                Movement(
+                    type=Movement.ITEM_USED,
+                    callback=self.player.items[item].use,
+                    priority=1000,
+                    objective=self.player.selected_pokemon
+                )
+            )
+
+            self.__defaultMenu()
 
     def __selectPokemon(self):
         pokemon = self.cursor_position[1] + self.cursor_position[0]
@@ -196,11 +216,12 @@ class Menu:
         for i in range(0, len(attacks), 2):
             fila = [Option(attacks[j].name, self.__selectAttack) for j in range(i, min(i + 2, len(attacks)))]
             filas.append(fila)
-        print(filas)
+
         self.current_options = filas
 
     def __nextMessage(self):
-        self.dialog_controller.pop()
+        if self.dialog_controller.hasMessages():
+            self.dialog_controller.pop()
         self.__defaultMenu()
 
     def __showMessage(self):

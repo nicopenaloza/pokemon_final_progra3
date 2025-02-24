@@ -35,6 +35,8 @@ class EVENTS:
     ENTER = K_RETURN
     BACK = K_BACKSPACE
     MOVEMENT = "movement"
+    WIN = "win"
+    LOSE = "lose"
 
 class POKEMON_TYPES:
     FIRE = 1

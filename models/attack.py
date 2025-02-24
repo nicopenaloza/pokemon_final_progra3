@@ -16,5 +16,8 @@ class Attack:
             if self.pp > 0:
                 if random.randrange(100) <= self.precision:
                     response = pokemon.takeDamage(self)
+                else:
+                    response = [f"{self.name} fallo"]
                 self.pp -= 1
+
         return response

@@ -17,12 +17,17 @@ class Pokemon:
     def takeDamage(self, attack):
         multiplier = 1.25 if self.isWeak(attack.type, self.type) else 1
         multiplier = 0.30 if self.isStrong(attack.type, self.type) else multiplier
-        self.life -= attack.damage * multiplier
-        response = [f"{self.name} ha perdido {attack.damage * multiplier}PS"]
+        self.life -= int(attack.damage * multiplier)
+        response = [f"{self.name} ha perdido {int(attack.damage * multiplier)}PS"]
+
         if multiplier > 1:
             response.append("Es muy eficaz")
         if multiplier < 1:
             response.append("No es eficaz")
+
+        if (self.life <= 0):
+            response.append(f"{self.name} se ha debilitado.")
+
         return response
 
     def isWeak(self, origin, objective):
@@ -33,3 +38,6 @@ class Pokemon:
 
     def isDead(self):
         return self.life <= 0
+
+    def heal(self, amount):
+        self.life += amount

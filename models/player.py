@@ -1,6 +1,7 @@
 from copy import copy
 
 from models.drawableEntity import DrawableEntity
+from models.potion import Potion
 from utils.pokemons import Pikachu
 
 
@@ -9,7 +10,7 @@ class Player(DrawableEntity):
     def __init__(self):
         super().__init__(0, 1, size=40, media_path='')
 
-        self.items = []
+        self.items = [Potion(3)]
         self.pokemons = []
         self.selected_pokemon = copy(Pikachu)
 
@@ -32,7 +33,7 @@ class Player(DrawableEntity):
             i += 1
         return response
 
-    def __nextPokemonId(self):
+    def nextPokemonId(self):
         i = -1
         flag = False
         while i < len(self.pokemons) and not flag:
@@ -43,5 +44,5 @@ class Player(DrawableEntity):
         return i
 
     def nextPokemon(self):
-        nextPokemonId = self.__nextPokemonId()
-        self.selected_pokemon = self.pokemons[nextPokemonId]
+        self.selected_pokemon = self.pokemons[self.nextPokemonId()]
+        return [f"{self.selected_pokemon.name} ha entrado en la arena"]

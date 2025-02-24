@@ -23,8 +23,8 @@ class Game:
         self.__menu = Menu(self.player, self.__event_controller, self.__dialog_controller)
         self.__menu.init()
 
-        self.__combat_controller = CombatController(self.enemy, self.player, self.__dialog_controller, self.__menu)
-
+        self.__combat_controller = CombatController(self.enemy, self.player, self.__dialog_controller, self.__menu,
+                                                    self.__event_controller)
 
     def __init_services(self):
         init()
@@ -45,13 +45,15 @@ class Game:
         display.set_caption(SCREEN_SETTINGS.CAPTION)
         self.clock = time.Clock()
 
-    def __stop(self):
-        self.state = 0
+    def __stop(self, state=0):
+        self.state = state
 
     def start(self):
         self.state = 1
         self.__event_controller.subscribe((EVENTS.QUIT, self.__stop))
         self.__event_controller.subscribe((EVENTS.MOVEMENT, self.__combat_controller.addMovement))
+        self.__event_controller.subscribe((EVENTS.LOSE, lambda: self.__stop(2)))
+        self.__event_controller.subscribe((EVENTS.WIN, lambda: self.__stop(3)))
 
         while self.state == 1:
             self.screen.fill(COLORS.BACKGROUND)
@@ -65,6 +67,8 @@ class Game:
 
             display.update()
             self.clock.tick(SCREEN_SETTINGS.FPS)
+
+        print(self.state)
 
         self.__event_controller.unsubscribeAll()
 
