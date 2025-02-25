@@ -1,4 +1,4 @@
-from pygame import init, mixer, display, time, draw, Rect
+from pygame import init, mixer, display, time, image, transform
 
 from controllers.combatController import CombatController
 from controllers.dialogController import DialogController
@@ -22,6 +22,10 @@ class Game:
 
         self.__menu = Menu(self.player, self.__event_controller, self.__dialog_controller)
         self.__menu.init()
+
+        self.background_image_path = "assets/Fondo_batalla_ancho.png"
+        self.background_image = image.load(self.background_image_path)
+        self.background_image = transform.scale(self.background_image, (800, 600))
 
         self.__combat_controller = CombatController(self.enemy, self.player, self.__dialog_controller, self.__menu,
                                                     self.__event_controller)
@@ -56,7 +60,7 @@ class Game:
         self.__event_controller.subscribe((EVENTS.WIN, lambda: self.__stop(3)))
 
         while self.state == 1:
-            self.screen.fill(COLORS.BACKGROUND)
+            self.screen.blit(self.background_image, (0,-SCREEN_SETTINGS.HEIGHT * 0.25))
             self.__event_controller.checkEvents()
             self.__combat_controller.runMovements()
 
