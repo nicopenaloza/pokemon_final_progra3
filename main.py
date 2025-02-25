@@ -74,7 +74,10 @@ class Game:
 
     def update(self):
         if (self.player.selected_pokemon):
-            draw.rect(self.screen, COLORS.RED, Rect(64 * 2, 600 - 128 * 2, 128, 128))
+            self.player.selected_pokemon.draw(self.screen, SCREEN_SETTINGS.WIDTH * 0.05, SCREEN_SETTINGS.HEIGHT * 0.12)
+
+        if (self.enemy.selected_pokemon):
+            self.enemy.selected_pokemon.draw(self.screen, SCREEN_SETTINGS.WIDTH * 0.55, 0, True)
 
         self.__combat_controller.validateState()
 

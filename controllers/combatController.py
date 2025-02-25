@@ -3,32 +3,15 @@ from random import choice
 from controllers.dialogController import DialogController
 from controllers.eventController import EventController
 from models.message import Message
+from models.movement import Movement
 from models.player import Player
 from utils.constants import EVENTS
 
 
-class Movement:
-    ITEM_USED = 0
-    POKEMON_CHANGED = 1
-    ATTACK = 2
-
-    def __init__(self, type, callback, priority=100, origin=None, objective=None, name=""):
-        self.type = type
-        self.callback = callback
-        self.priority = priority
-        self.objective = objective
-        self.origin = origin
-        self.name = name
-
-    def run(self):
-        if (self.objective == None and self.type != Movement.ATTACK):
-            return self.callback()
-        else:
-            return self.callback(self.objective)
-
 class CombatController:
 
-    def __init__(self, enemy=Player(), player=Player(), dialogController=DialogController(), menu=None, eventController=EventController()):
+    def __init__(self, enemy=Player(), player=Player(), dialogController=DialogController(), menu=None,
+                 eventController=EventController()):
         self.enemy = enemy
         self.player = player
         self.dialogController = dialogController
@@ -43,7 +26,7 @@ class CombatController:
                 Message(f"{self.player.selected_pokemon.name} ha sido debilitado.")
             )
 
-            if self.enemy.hasMorePokemons():
+            if self.player.hasMorePokemons():
                 self.player.nextPokemon()
             else:
                 self.dialogController.addMessage(
@@ -78,22 +61,28 @@ class CombatController:
             for move in self.turn_movements:
                 if self.__canMove(move):
                     text = ""
+                    message = Message(text)
+
                     if move.type == Movement.ATTACK:
                         text = move.origin.name + " ha usado " + move.name
                         if move.origin == self.enemy.selected_pokemon:
-                            move.objective = self.player.selected_pokemon
+                            move.objective = self.player
                         if move.origin == self.player.selected_pokemon:
-                            move.objective = self.enemy.selected_pokemon
+                            move.objective = self.enemy
+
+                        message.origin = move.origin
 
                     if move.type == Movement.ITEM_USED:
                         text = f"{move.origin.name} ha bebido una poción"
 
                     if move.type == Movement.POKEMON_CHANGED:
                         pokemon = self.enemy.pokemons[move.objective] if move.origin == self.enemy else \
-                                  self.player.pokemons[move.objective]
+                            self.player.pokemons[move.objective]
                         text = f"{move.origin.name} ha sido cambiado por {pokemon.name}"
 
                     if not move.origin.isDead():
+                        message.text = text
+                        message.callback = move.run
                         self.dialogController.addMessage(Message(text, move.run))
 
             self.turn_movements = []
@@ -148,7 +137,8 @@ class CombatController:
                     if item.stock > 0 and enemy_life < enemy_pokemon.max_life:
                         heal_amount = min(enemy_pokemon.max_life - enemy_life, 20)
                         new_enemy_life = enemy_life + heal_amount
-                        value = self.__minimax(enemy_pokemon, new_enemy_life, player_pokemon, player_life, depth - 1, False)
+                        value = self.__minimax(enemy_pokemon, new_enemy_life, player_pokemon, player_life, depth - 1,
+                                               False)
                         best_value = max(best_value, value)
             return best_value
 
@@ -175,7 +165,8 @@ class CombatController:
                     if item.stock > 0 and player_life < player_pokemon.max_life:
                         heal_amount = min(player_pokemon.max_life - player_life, 20)
                         new_player_life = player_life + heal_amount
-                        value = self.__minimax(enemy_pokemon, enemy_life, player_pokemon, new_player_life, depth - 1, True)
+                        value = self.__minimax(enemy_pokemon, enemy_life, player_pokemon, new_player_life, depth - 1,
+                                               True)
                         best_value = min(best_value, value)
             return best_value
 
@@ -194,7 +185,8 @@ class CombatController:
                 continue
             damage = self.__expected_damage(attack, player_pokemon)
             new_player_life = max(0, current_player_life - damage)
-            value = self.__minimax(enemy_pokemon, current_enemy_life, player_pokemon, new_player_life, search_depth - 1, False)
+            value = self.__minimax(enemy_pokemon, current_enemy_life, player_pokemon, new_player_life, search_depth - 1,
+                                   False)
             if value > best_value:
                 best_value = value
                 best_move = ("attack", attack)
@@ -203,7 +195,8 @@ class CombatController:
             if candidate == enemy_pokemon or candidate.isDead():
                 continue
             new_enemy_life = candidate.life
-            value = self.__minimax(candidate, new_enemy_life, player_pokemon, current_player_life, search_depth - 1, False)
+            value = self.__minimax(candidate, new_enemy_life, player_pokemon, current_player_life, search_depth - 1,
+                                   False)
             if value > best_value:
                 best_value = value
                 best_move = ("switch", candidate)
@@ -213,7 +206,8 @@ class CombatController:
                 if item.stock > 0 and current_enemy_life < enemy_pokemon.max_life:
                     heal_amount = min(enemy_pokemon.max_life - current_enemy_life, 20)
                     new_enemy_life = current_enemy_life + heal_amount
-                    value = self.__minimax(enemy_pokemon, new_enemy_life, player_pokemon, current_player_life, search_depth - 1, False)
+                    value = self.__minimax(enemy_pokemon, new_enemy_life, player_pokemon, current_player_life,
+                                           search_depth - 1, False)
                     if value > best_value:
                         best_value = value
                         best_move = ("potion", item)

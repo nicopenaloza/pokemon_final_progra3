@@ -1,4 +1,6 @@
-from utils.constants import POKEMON_TYPES
+from pygame import image, transform
+
+from utils.constants import POKEMON_TYPES, SCREEN_SETTINGS
 
 
 class Pokemon:
@@ -11,6 +13,16 @@ class Pokemon:
         self.name = name
         self.id = id
         self.speed = speed
+        self.image_path = f"assets/{self.name}"
+        self.back_image = image.load(self.image_path + '-back.png')
+        self.back_image = transform.scale(self.back_image, (300, 400))
+
+        self.front_image = image.load(self.image_path + '-front.png')
+        self.front_image = transform.scale(self.front_image, (300, 400))
+
+        self.frames_to_tick = 0
+        self.times_to_tick = 0
+        self.candraw = True
 
         self.attacks = attacks
 
@@ -28,6 +40,7 @@ class Pokemon:
         if (self.life <= 0):
             response.append(f"{self.name} se ha debilitado.")
 
+        self.times_to_tick = 10
         return response
 
     def isWeak(self, origin, objective):
@@ -41,3 +54,17 @@ class Pokemon:
 
     def heal(self, amount):
         self.life += amount
+
+    def draw(self, screen, x, y, enemy = False):
+        if (self.frames_to_tick >= 0.15 * SCREEN_SETTINGS.FPS and self.times_to_tick > 0):
+            self.times_to_tick -= 1
+            self.frames_to_tick = 0
+            self.candraw = not self.candraw
+
+        if (self.times_to_tick <= 0):
+            self.candraw = True
+
+        if (self.candraw):
+            screen.blit(self.front_image if enemy else self.back_image, (x, y))
+
+        self.frames_to_tick += 1

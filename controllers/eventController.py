@@ -23,9 +23,10 @@ class EventController:
     def close(self):
         self.emitEvent(EVENTS.QUIT)
 
-    def emitEvent(self, event, payload = None):
+    def emitEvent(self, _event, payload = None):
         for ob in self.observers:
-            if (ob[0] == event):
+            if (ob[0] == _event):
+                print(ob[1], _event, payload)
                 if (payload == None):
                     ob[1]()
                 else:

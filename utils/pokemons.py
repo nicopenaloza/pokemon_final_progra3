@@ -2,11 +2,11 @@ from models.pokemon import Pokemon
 from utils.attacks import Ascuas, Placaje, PistolaAgua, Impactrueno, AtaqueRapido
 from utils.constants import POKEMON_TYPES
 
-Squirtle = Pokemon("Squirtle", 1, POKEMON_TYPES.WATER, "squirtle", [
-    PistolaAgua, Ascuas
+Squirtle = Pokemon("Blastoise", 1, POKEMON_TYPES.WATER, "squirtle", [
+    Placaje, PistolaAgua
 ], 100, 30)
 
-Charmander = Pokemon("Charmander", 1, POKEMON_TYPES.FIRE, "char", [
+Charmander = Pokemon("Arcanine", 1, POKEMON_TYPES.FIRE, "char", [
     Placaje, Ascuas
 ], 100, 30)
 
